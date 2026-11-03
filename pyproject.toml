@@ -32,7 +32,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-vis = ["gravis>=0.1.0", "jupyterlab>=4.3.0", "ipykernel>=6.29.5"]
+vis = ["gravis>=0.1.0", "jupyterlab>=4.3.0", "ipykernel>=7.3.0"]
 docs = [
     "mkdocs>=1.6.0,<2",
     "mkdocs-material",
