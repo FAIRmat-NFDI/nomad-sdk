@@ -2,7 +2,8 @@
  * Icon registry — the ONLY place components get icons from (taxonomy app convention).
  * Each icon is named by ROLE (what it means in the UI), not by shape.
  * Shapes copied from the taxonomy app are maintained here as our own;
- * add, arrow, delete, download, edit, login, file, search and upload-file are nomad-sdk additions (Material Icons, Apache-2.0).
+ * add, arrow, delete, download, edit, login, file, search, upload-file and the workflow-graph
+ * toolbar icons (play, stop, label, label-off, undo, replay) are nomad-sdk additions (Material Icons, Apache-2.0).
  */
 import AddSvg from './add.svg?react';
 import ArrowSvg from './arrow.svg?react';
@@ -26,6 +27,12 @@ import LogoutSvg from './logout.svg?react';
 import MenuSvg from './menu.svg?react';
 import RunSvg from './run.svg?react';
 import SearchSvg from './search.svg?react';
+import PlaySvg from './play.svg?react';
+import StopSvg from './stop.svg?react';
+import LabelSvg from './label.svg?react';
+import LabelOffSvg from './label-off.svg?react';
+import UndoSvg from './undo.svg?react';
+import ReplaySvg from './replay.svg?react';
 import TreeLeafSvg from './tree-leaf.svg?react';
 import { createAssetIcon } from './createAssetIcon';
 
@@ -70,3 +77,15 @@ export const DeleteIcon = createAssetIcon(DeleteSvg, 'DeleteIcon');
 export const LoginIcon = createAssetIcon(LoginSvg, 'LoginIcon');
 /** Filter / search a list. */
 export const SearchIcon = createAssetIcon(SearchSvg, 'SearchIcon');
+
+// --- workflow graph toolbar (same icons as NOMAD's workflow card) ------------
+/** Start / stop the force layout. */
+export const ForceStartIcon = createAssetIcon(PlaySvg, 'ForceStartIcon');
+export const ForceStopIcon = createAssetIcon(StopSvg, 'ForceStopIcon');
+/** Show / hide the legend. */
+export const LegendShowIcon = createAssetIcon(LabelSvg, 'LegendShowIcon');
+export const LegendHideIcon = createAssetIcon(LabelOffSvg, 'LegendHideIcon');
+/** Go back up one level. */
+export const BackIcon = createAssetIcon(UndoSvg, 'BackIcon');
+/** Reset the view. */
+export const ResetIcon = createAssetIcon(ReplaySvg, 'ResetIcon');

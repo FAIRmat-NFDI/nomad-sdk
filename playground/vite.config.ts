@@ -61,6 +61,7 @@ export default defineConfig(({ mode }) => {
             if (!id.includes('node_modules')) return undefined;
             if (id.includes('@mui') || id.includes('@emotion')) return 'vendor-mui';
             if (id.includes('@xyflow')) return 'vendor-graph';
+            if (id.includes('/d3') || id.includes('/yaml/')) return 'vendor-d3';
             return 'vendor';
           },
         },

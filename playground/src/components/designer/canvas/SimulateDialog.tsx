@@ -12,22 +12,19 @@ import {
   Tab,
   Tabs,
 } from '@mui/material';
-import { ConnectionMode, ReactFlow, type Edge } from '@xyflow/react';
 import { CopyIcon, DownloadIcon } from '@/assets';
 import type { EngineRun } from '@/hooks/useWorkflowEngine';
 import { downloadText } from '@/lib/download';
 import { monoFontFamily } from '@/theme';
-import { layeredPositions } from '@/workflow/layout';
-import { NODE_SIZE } from '@/workflow/lanes';
-import { defaultEdgeOptions, nodeTypes } from './flow';
-import type { StepNode } from './nodes';
+import { useWorkspace } from '@/workspace';
+import { WorkflowCard } from './nomad/WorkflowCard';
 
 export const YAML_FILENAME = 'workflow.archive.yaml';
 
 /**
  * "Simulate": what NOMAD will show once the YAML is uploaded with the files. Nothing is executed —
- * the engine (Python, in the browser) generates the archive, including its default inputs / outputs
- * (dashed), and the YAML itself.
+ * the engine (Python, in the browser) generates the archive, and the "Workflow" tab shows it in
+ * NOMAD's own workflow graph (ported from nomad-FAIR), clickable as on an entry page.
  */
 export function SimulateDialog({
   open,
@@ -38,7 +35,8 @@ export function SimulateDialog({
   onClose: () => void;
   run: EngineRun | null;
 }) {
-  const [tab, setTab] = useState<'graph' | 'yaml'>('graph');
+  const [tab, setTab] = useState<'workflow' | 'yaml'>('workflow');
+  const { workspace } = useWorkspace();
   const [copied, setCopied] = useState(false);
   const result = run?.result;
   const yaml = result?.ok ? result.yaml : null;
@@ -48,36 +46,10 @@ export function SimulateDialog({
     ...(result?.ok ? result.warnings : []),
   ];
 
-  const graph = useMemo(() => {
-    if (!result?.ok) return null;
-    const pos = layeredPositions(
-      result.nodes.map((n) => n.id),
-      result.edges,
-      { rankGap: NODE_SIZE + 90, nodeGap: NODE_SIZE + 24 },
-    );
-    const nodes: StepNode[] = result.nodes.map((n) => ({
-      id: String(n.id),
-      type: 'step',
-      position: pos.get(n.id)!,
-      data: {
-        label: n.name ?? `#${n.id}`,
-        kind: n.type ?? 'task',
-        isDefault: n.default,
-        readOnly: true,
-        caption: [n.name, n.mainfile_path].filter(Boolean).join(' · '),
-      },
-      draggable: false,
-      connectable: false,
-    }));
-    const edges: Edge[] = result.edges.map((e) => ({
-      id: `${e.source}->${e.target}`,
-      source: String(e.source),
-      target: String(e.target),
-      sourceHandle: 'right',
-      targetHandle: 'left',
-    }));
-    return { nodes, edges };
-  }, [result]);
+  const files = useMemo(
+    () => (workspace?.files ?? []).map((f) => ({ path: f.path, text: () => f.blob.text() })),
+    [workspace],
+  );
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg" aria-labelledby="simulate-title">
@@ -107,28 +79,14 @@ export function SimulateDialog({
               ))}
             </Alert>
           )}
-          {graph && yaml && (
+          {yaml && (
             <>
               <Tabs value={tab} onChange={(_, v) => setTab(v)} aria-label="Simulation result">
-                <Tab value="graph" label="Graph in NOMAD" />
+                <Tab value="workflow" label="Workflow" />
                 <Tab value="yaml" label={YAML_FILENAME} />
               </Tabs>
-              {tab === 'graph' ? (
-                <Box sx={{ height: '55vh', bgcolor: 'action.hover', borderRadius: 1 }}>
-                  <ReactFlow
-                    aria-label="Generated workflow graph"
-                    nodes={graph.nodes}
-                    edges={graph.edges}
-                    nodeTypes={nodeTypes}
-                    defaultEdgeOptions={defaultEdgeOptions}
-                    // Every handle is a "source" (see nodes.tsx), so edges need loose mode to attach.
-                    connectionMode={ConnectionMode.Loose}
-                    nodesConnectable={false}
-                    nodesDraggable={false}
-                    fitView
-                    proOptions={{ hideAttribution: true }}
-                  />
-                </Box>
+              {tab === 'workflow' ? (
+                <WorkflowCard yaml={yaml} files={files} name={workspace?.name ?? 'workflow'} />
               ) : (
                 <Box
                   component="pre"
@@ -147,8 +105,10 @@ export function SimulateDialog({
                 </Box>
               )}
               <Alert severity="info">
-                Dashed nodes are the default inputs and outputs the engine adds. Upload {YAML_FILENAME}{' '}
-                together with your files; no login or upload IDs are needed.
+                Click a task to expand it, or a link between tasks to see how they connect, as on a NOMAD
+                entry page. Entries NOMAD creates from your files (such as .log files) appear as placeholders
+                until upload. Upload {YAML_FILENAME} together with your files; no login or upload IDs are
+                needed.
               </Alert>
             </>
           )}

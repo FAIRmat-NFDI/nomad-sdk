@@ -59,6 +59,8 @@ through Pyodide (WebAssembly), and your files never leave your computer.
 
 * **Workflow designer** (`/workflow`): open a folder, add steps from its mainfiles,
   connect them, and download `workflow.archive.yaml`.
+  **Simulate** shows the result in NOMAD's own workflow graph (ported from nomad-FAIR):
+  expand tasks, inspect links, filter, as on a NOMAD entry page.
 * **API Explorer** (`/api`): the Python API reference, generated from the docstrings.
 
 It is published on GitHub Pages together with the docs (`<pages>/` for the playground,

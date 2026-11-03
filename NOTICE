@@ -1,0 +1,15 @@
+nomad-sdk
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes software derived from NOMAD (nomad-FAIR),
+https://gitlab.mpcdf.mpg.de/nomad-lab/nomad-FAIR — Copyright The NOMAD Authors,
+licensed under the Apache License, Version 2.0:
+
+  * The workflow graph of the playground's Simulate dialog is a port of
+    gui/src/components/entry/properties/WorkflowCard.js and of resolveInternalRef in
+    gui/src/utils.js:
+      playground/src/workflow/nomad/model.ts
+      playground/src/components/designer/canvas/nomad/WorkflowGraph.tsx
+      playground/src/components/designer/canvas/nomad/WorkflowCard.tsx
+    Changes: TypeScript, d3 v7, MUI v9; archives resolved from local files instead of
+    the NOMAD API; SVG download added.
