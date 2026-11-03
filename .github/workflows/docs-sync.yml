@@ -73,7 +73,7 @@ jobs:
 
       - name: Open or update PR in nomad-docs
         if: env.DRY_RUN != 'true'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           path: .upstream/nomad-docs
           token: ${{ steps.app.outputs.token }}
