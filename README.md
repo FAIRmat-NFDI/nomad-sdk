@@ -61,7 +61,8 @@ through Pyodide (WebAssembly), and your files never leave your computer.
   connect them, and download `workflow.archive.yaml`.
 * **API Explorer** (`/api`): the Python API reference, generated from the docstrings.
 
-It is published on GitHub Pages and ships in the package (`nomad-sdk playground serve`).
+It is published on GitHub Pages together with the docs (`<pages>/` for the playground,
+`<pages>/docs/` for the docs), and ships in the package (`nomad-sdk playground serve`).
 
 ```mermaid
 flowchart LR

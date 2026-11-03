@@ -5,7 +5,8 @@
 #
 # mode
 #   owned   nomad-sdk is the source of truth. Edited here, exported to nomad-docs
-#           by .github/workflows/docs-sync.yml. `check` fails if someone edits
+#           by `scripts/docs_sync.py export` (the automatic PR workflow is in
+#           .github/disabled-workflows/ for now). `check` fails if someone edits
 #           the page directly in nomad-docs (drift since the last import).
 #   mirror  nomad-docs is the source of truth. Pulled here read-only for context
 #           and local preview; refreshed by `import`, never exported.

@@ -1,8 +1,9 @@
 name: Playground
 
-# UI quality gate + GitHub Pages deployment of the playground (React + MUI, playground/).
+# UI quality gate + GitHub Pages deployment of the playground and the SDK docs.
 #   ui       lint, typecheck, unit tests, prettier, build; generated data is current
-#   pages    UI built for the Pages base path + sdk.zip + SPA fallback → Pages artifact
+#   pages    one Pages artifact: playground at <base>/ (UI + sdk.zip + SPA fallback),
+#            docs (mkdocs, strict) at <base>/docs/
 #   deploy   publishes the artifact (main and manual runs only)
 #
 # One-time setup: Settings → Pages → Build and deployment → Source: "GitHub Actions".
@@ -19,6 +20,9 @@ on:
       - "docs/**"
       - "examples/docs/**"
       - "docs-sync.yaml"
+      - "mkdocs.yml"
+      - "docs_preview/**"
+      - "overrides/**"
       - ".github/workflows/playground.yml"
   workflow_dispatch:
 
@@ -73,13 +77,20 @@ jobs:
         working-directory: playground
         env:
           VITE_BASE: ${{ vars.PAGES_BASE || format('{0}/', steps.pages.outputs.base_path) }}
-        run: npm ci && npm run build
+        run: |
+          export VITE_DOCS_URL="${VITE_BASE}docs"  # the Docs menu opens the docs below
+          npm ci && npm run build
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - run: pip install -e .
+      - run: pip install -e ".[docs]"
       - name: Add sdk.zip and the SPA fallback (404.html) for deep links
         run: python -m nomad_sdk.playground.bundle --out site --static playground/dist
+      - name: Build the docs into <base>/docs/
+        env:
+          NO_MKDOCS_2_WARNING: "1"
+          DOCS_SITE_URL: ${{ steps.pages.outputs.base_url }}/docs/
+        run: mkdocs build --strict -d site/docs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

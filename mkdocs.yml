@@ -1,4 +1,6 @@
-# Local preview of the nomad-docs subset owned/mirrored by nomad-sdk.
+# The nomad-docs subset owned/mirrored by nomad-sdk: local preview (`mkdocs serve`)
+# and the standalone docs deployed with the playground at <pages>/docs/
+# (playground.yml sets DOCS_SITE_URL).
 #
 # Look and feel are inherited from nomad-docs/mkdocs.yml: theme, palette, header
 # logo, features, extensions, extra_css/js and URL style are copied verbatim, and
@@ -10,6 +12,7 @@ site_description: |
   Preview of the NOMAD documentation pages maintained in nomad-sdk
   (workflows and API).
 site_author: The NOMAD Authors
+site_url: !ENV [DOCS_SITE_URL, 'http://127.0.0.1:8000/']
 repo_url: https://github.com/FAIRmat-NFDI/nomad-sdk
 edit_uri: ""
 docs_dir: docs
