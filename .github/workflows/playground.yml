@@ -80,7 +80,7 @@ jobs:
       - run: pip install -e .
       - name: Add sdk.zip and the SPA fallback (404.html) for deep links
         run: python -m nomad_sdk.playground.bundle --out site --static playground/dist
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: site
 
