@@ -1,0 +1,99 @@
+name: Playground
+
+# UI quality gate + GitHub Pages deployment of the playground (React + MUI, playground/).
+#   ui       lint, typecheck, unit tests, prettier, build; generated data is current
+#   pages    UI built for the Pages base path + sdk.zip + SPA fallback → Pages artifact
+#   deploy   publishes the artifact (main and manual runs only)
+#
+# One-time setup: Settings → Pages → Build and deployment → Source: "GitHub Actions".
+# The site is served at https://<owner>.github.io/<repo>/ (or a custom domain); the base
+# path comes from actions/configure-pages, override it with repository variable PAGES_BASE.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "playground/**"
+      - "src/nomad_sdk/**"
+      - "docs/**"
+      - "examples/docs/**"
+      - "docs-sync.yaml"
+      - ".github/workflows/playground.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time; never cancel a deployment that is already running.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: playground/package-lock.json
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install nomad-sdk (dev extras, for the generated-data check)
+        run: pip install -e ".[dev]"
+      - name: examples.json and api.json match the docs examples and docstrings
+        run: python -m nomad_sdk.playground.bundle --check
+      - name: Lint, typecheck, test, format, build
+        working-directory: playground
+        run: |
+          npm ci
+          npm run lint
+          npm run typecheck
+          npm test
+          npx prettier --check "src/**/*.{ts,tsx}"
+          npm run build
+
+  pages:
+    needs: ui
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - id: pages
+        uses: actions/configure-pages@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: playground/package-lock.json
+      - name: Build UI for the Pages base path
+        working-directory: playground
+        env:
+          VITE_BASE: ${{ vars.PAGES_BASE || format('{0}/', steps.pages.outputs.base_path) }}
+        run: npm ci && npm run build
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: Add sdk.zip and the SPA fallback (404.html) for deep links
+        run: python -m nomad_sdk.playground.bundle --out site --static playground/dist
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: pages
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

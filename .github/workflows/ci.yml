@@ -1,0 +1,82 @@
+name: CI
+
+# Package quality gate: lint, unit + golden + docs example files (offline), build.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_VERSION: "0.6"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/ruff-action@v4.1.0
+        with:
+          args: check
+      - uses: astral-sh/ruff-action@v4.1.0
+        with:
+          args: format --check --diff
+
+  test:
+    name: test (py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.14 mirrors the Pyodide runtime used by the playground.
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: uv pip install --system -e ".[dev]"
+      # Unit tests, workflow golden parity, playground server and generated data,
+      # and every docs example file (examples/docs/, offline mock).
+      - name: Pytest
+        run: pytest -ra
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # setuptools-scm derives the version from tags
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: playground/package-lock.json
+      # The wheel ships the built UI so `nomad-sdk playground serve` works after pip install.
+      - name: Build playground UI into the package
+        working-directory: playground
+        run: npm ci && npm run build:package
+      - name: Build sdist and wheel
+        run: uvx --from build pyproject-build
+      - name: Check playground assets ship in the wheel
+        run: |
+          unzip -l dist/*.whl | grep -q 'nomad_sdk/playground/static/index.html'
+          unzip -l dist/*.whl | grep -q 'nomad_sdk/playground/static/examples.json'
+          unzip -l dist/*.whl | grep -q 'nomad_sdk/playground/static/assets/'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/

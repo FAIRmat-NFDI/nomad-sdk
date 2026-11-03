@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Connect and check your identity",
+    "page": "howto/manage/program/nomad_sdk.md",
+    "file": "examples/docs/sdk/connect_from_env.py",
+    "code": "from nomad_sdk import NomadClient\n\nclient = NomadClient.from_env()  # NOMAD_API_URL + EnvironmentCredential (NOMAD_PAT)\nme = client.users.get_me()\nprint(f'Authenticated as {me.name} ({me.username})')\n"
+  },
+  {
+    "title": "Connect and check your identity",
+    "page": "howto/manage/program/nomad_sdk.md",
+    "file": "examples/docs/sdk/connect_with_credential.py",
+    "code": "import os\n\nfrom nomad_sdk import NomadClient\nfrom nomad_sdk.identity import PersonalAccessTokenCredential\n\ncredential = PersonalAccessTokenCredential(os.environ['NOMAD_PAT'])\nwith NomadClient(os.environ['NOMAD_API_URL'], credential) as client:\n    print(client.api_url, '→', client.users.get_me().username)\n"
+  },
+  {
+    "title": "Connect and check your identity",
+    "page": "howto/manage/program/nomad_sdk.md",
+    "file": "examples/docs/sdk/deployment_alias.py",
+    "code": "from nomad_sdk import NomadClient\n\nclient = NomadClient('test')  # anonymous; 'central', 'test' and 'develop' are aliases\nprint(client.api_url)\n"
+  },
+  {
+    "title": "Handle authentication errors",
+    "page": "howto/manage/program/nomad_sdk.md",
+    "file": "examples/docs/sdk/handle_errors.py",
+    "code": "import os\n\nfrom nomad_sdk import NomadClient\nfrom nomad_sdk.exceptions import AuthenticationError\nfrom nomad_sdk.identity import PersonalAccessTokenCredential\n\nbad = PersonalAccessTokenCredential('not-a-valid-token')\nclient = NomadClient(os.environ['NOMAD_API_URL'], bad)\ntry:\n    client.users.get_me()\nexcept AuthenticationError as error:\n    print(f'Rejected with HTTP {error.status_code}: {error.detail}')\n"
+  },
+  {
+    "title": "Generate a custom workflow archive",
+    "page": "howto/manage/program/nomad_sdk.md",
+    "file": "examples/docs/sdk/workflow_archive.py",
+    "code": "from nomad_sdk.workflow import NodeAttributes, NodeAttributesUniverse, NomadWorkflow\n\nnodes = NodeAttributesUniverse(\n    nodes={\n        0: NodeAttributes(\n            name='Geometry optimization',\n            type='workflow',\n            entry_type='simulation',\n            path_info={'mainfile_path': 'Emin/mdrun_Emin.log'},\n        ),\n        1: NodeAttributes(\n            name='Production MD',\n            type='workflow',\n            entry_type='simulation',\n            path_info={'mainfile_path': 'Prod_NVT/mdrun_Prod-NVT.log'},\n            in_edge_nodes=[0],\n        ),\n    }\n)\n\nNomadWorkflow(\n    node_attributes_universe=nodes,\n    name='Two-step MD',\n    destination_filename='workflow.archive.yaml',\n).build_workflow_yaml()\n"
+  }
+]

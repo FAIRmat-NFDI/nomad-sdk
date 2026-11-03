@@ -1,0 +1,47 @@
+{
+  "name": "nomad-sdk-playground",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "nomad-sdk playground UI: a thin React + MUI wrapper around nomad_sdk (Pyodide). Design recreated from the FAIRmat taxonomy app as a standalone copy.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "build:package": "tsc -b && vite build --outDir ../src/nomad_sdk/playground/static --emptyOutDir",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.{ts,tsx,md}\"",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fontsource/titillium-web": "^5.3.0",
+    "@mui/material": "^9.5.0",
+    "@mui/x-tree-view": "^9.15.0",
+    "@xyflow/react": "^12.12.1",
+    "fflate": "^0.8.3",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-resizable-panels": "^4.14.5",
+    "react-router": "^8.4.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "eslint": "^10.12.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.2",
+    "vite": "^8.3.4",
+    "vite-plugin-svgr": "^5.2.0",
+    "vitest": "^5.0.5"
+  }
+}

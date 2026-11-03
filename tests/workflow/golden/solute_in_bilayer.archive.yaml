@@ -1,0 +1,74 @@
+'workflow2':
+  'name': 'solute_in_bilayer'
+  'inputs':
+  - 'name': 'Solute in bilayer workflow parameters'
+    'section': '../upload/archive/mainfile/workflow_parameters.archive.yaml#/data'
+  'outputs':
+  - 'name': 'data from compute_wham'
+    'section': '../upload/archive/mainfile/compute_wham.archive.yaml#/data'
+  'tasks':
+  - 'm_def': 'nomad.datamodel.metainfo.workflow.TaskReference'
+    'name': 'insert_solute_in_box'
+    'task': '../upload/archive/mainfile/insert_solute_in_box.archive.yaml#/data'
+    'inputs':
+    - 'name': 'data from workflow parameters'
+      'section': '../upload/archive/mainfile/workflow_parameters.archive.yaml#/data'
+    'outputs':
+    - 'name': 'data from insert_solute_in_box'
+      'section': '../upload/archive/mainfile/insert_solute_in_box.archive.yaml#/data'
+  - 'm_def': 'nomad.datamodel.metainfo.workflow.TaskReference'
+    'name': 'convert_box_to_gro'
+    'task': '../upload/archive/mainfile/convert_box_to_gro.archive.yaml#/data'
+    'inputs':
+    - 'name': 'data from insert_solute_in_box'
+      'section': '../upload/archive/mainfile/insert_solute_in_box.archive.yaml#/data'
+    'outputs':
+    - 'name': 'data from convert_box_to_gro'
+      'section': '../upload/archive/mainfile/convert_box_to_gro.archive.yaml#/data'
+  - 'm_def': 'nomad.datamodel.metainfo.workflow.TaskReference'
+    'name': 'update_topology_file'
+    'task': '../upload/archive/mainfile/update_topology_file.archive.yaml#/data'
+    'inputs':
+    - 'name': 'data from workflow parameters'
+      'section': '../upload/archive/mainfile/workflow_parameters.archive.yaml#/data'
+    'outputs':
+    - 'name': 'data from update_topology_file'
+      'section': '../upload/archive/mainfile/update_topology_file.archive.yaml#/data'
+  - 'm_def': 'nomad.datamodel.metainfo.workflow.TaskReference'
+    'name': 'minimize'
+    'task': '../upload/archive/mainfile/solute_in_bilayer_minimize.log#/workflow2'
+    'inputs':
+    - 'name': 'data from convert_box_to_gro'
+      'section': '../upload/archive/mainfile/convert_box_to_gro.archive.yaml#/data'
+    - 'name': 'data from update_topology_file'
+      'section': '../upload/archive/mainfile/update_topology_file.archive.yaml#/data'
+    'outputs':
+    - 'name': 'output workflow2 from minimize'
+      'section': '../upload/archive/mainfile/solute_in_bilayer_minimize.log#/workflow2'
+  - 'm_def': 'nomad.datamodel.metainfo.workflow.TaskReference'
+    'name': 'equilibrate'
+    'task': '../upload/archive/mainfile/solute_in_bilayer_equilibrate.log#/workflow2'
+    'inputs':
+    - 'name': 'input workflow2 from minimize'
+      'section': '../upload/archive/mainfile/solute_in_bilayer_minimize.log#/workflow2'
+    'outputs':
+    - 'name': 'output workflow2 from equilibrate'
+      'section': '../upload/archive/mainfile/solute_in_bilayer_equilibrate.log#/workflow2'
+  - 'm_def': 'nomad.datamodel.metainfo.workflow.TaskReference'
+    'name': 'production'
+    'task': '../upload/archive/mainfile/solute_in_bilayer_production.log#/workflow2'
+    'inputs':
+    - 'name': 'input workflow2 from equilibrate'
+      'section': '../upload/archive/mainfile/solute_in_bilayer_equilibrate.log#/workflow2'
+    'outputs':
+    - 'name': 'output workflow2 from production'
+      'section': '../upload/archive/mainfile/solute_in_bilayer_production.log#/workflow2'
+  - 'm_def': 'nomad.datamodel.metainfo.workflow.TaskReference'
+    'name': 'compute_wham'
+    'task': '../upload/archive/mainfile/compute_wham.archive.yaml#/data'
+    'inputs':
+    - 'name': 'input workflow2 from production'
+      'section': '../upload/archive/mainfile/solute_in_bilayer_production.log#/workflow2'
+    'outputs':
+    - 'name': 'data from compute_wham'
+      'section': '../upload/archive/mainfile/compute_wham.archive.yaml#/data'

@@ -1,0 +1,57 @@
+name: Release
+
+# Builds the sdist + wheel (with the playground UI) for a version tag.
+#
+# PyPI publishing is DISABLED for now: the `pypi` job below is commented out.
+# To enable it:
+#   1. On pypi.org, add a trusted publisher for this repository
+#      (workflow: release.yml, environment: pypi).
+#   2. Create the `pypi` environment in Settings → Environments (add reviewers).
+#   3. Uncomment the `pypi` job.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # setuptools-scm derives the version from the tag
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: playground/package-lock.json
+      - name: Build playground UI into the package
+        working-directory: playground
+        run: npm ci && npm run build:package
+      - uses: astral-sh/setup-uv@v7
+      - name: Build sdist and wheel
+        run: uvx --from build pyproject-build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  # pypi:
+  #   needs: dist
+  #   runs-on: ubuntu-latest
+  #   if: startsWith(github.ref, 'refs/tags/v')
+  #   environment:
+  #     name: pypi
+  #     url: https://pypi.org/p/nomad-sdk
+  #   permissions:
+  #     id-token: write  # trusted publishing (OIDC), no API token
+  #   steps:
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: dist
+  #         path: dist/
+  #     - uses: pypa/gh-action-pypi-publish@release/v1

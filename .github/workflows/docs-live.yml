@@ -1,0 +1,29 @@
+name: Docs (live)
+
+# Live tier: the same doc snippets and `live`-marked tests, against a real NOMAD
+# deployment instead of the mock. Catches API drift the mock cannot see.
+#
+# Setup: repository variable NOMAD_API_URL (normally the test deployment) and
+# secret NOMAD_PAT (a dedicated service account, narrow scopes, rotated).
+
+on:
+  schedule:
+    - cron: "41 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    environment: nomad-test  # gate the secret behind an environment
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - name: Pytest (live)
+        env:
+          NOMAD_SDK_LIVE: "1"
+          NOMAD_API_URL: ${{ vars.NOMAD_API_URL }}
+          NOMAD_PAT: ${{ secrets.NOMAD_PAT }}
+        run: pytest -ra

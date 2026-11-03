@@ -1,0 +1,110 @@
+name: Docs
+
+# Guarantees that what docs-sync.yml exports will pass nomad-docs CI:
+#   gates        same markdownlint + ruff-on-markdown checks as nomad-docs,
+#                plus a strict local preview build
+#   drift        mirror pages current; owned pages not edited upstream
+#   integration  owned pages built *inside* a nomad-docs checkout (real macros,
+#                real nav, strict link checking) — the authoritative render
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "examples/docs/**"
+      - "docs-sync.yaml"
+      - "mkdocs.yml"
+      - "docs_preview/**"
+      - "scripts/docs_sync.py"
+      - ".github/workflows/docs.yml"
+  push:
+    branches: [main]
+    paths: ["docs/**", "examples/docs/**", "docs-sync.yaml"]
+  schedule:
+    - cron: "17 3 * * *"  # nightly: catch upstream drift with no local change
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_VERSION: "0.6"
+  PYTHON_VERSION: "3.12"
+  NO_MKDOCS_2_WARNING: "1"
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DavidAnson/markdownlint-cli2-action@v24
+        with:
+          config: .github/linters/nomad.markdownlint.jsonc  # mirrored from nomad-docs
+          globs: docs/**/*.md
+      - name: ruff format on markdown (nomad-docs parity)
+        uses: astral-sh/ruff-action@v4.1.0
+        with:
+          args: >-
+            format --isolated --preview --check --diff
+            --config "format.quote-style='single'" docs
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Strict preview build
+        run: |
+          uv pip install --system -e ".[docs]"
+          mkdocs build --strict
+
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: FAIRmat-NFDI/nomad-docs
+          path: .upstream/nomad-docs
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install pyyaml
+      - name: Check mirror freshness and upstream edits to owned pages
+        run: python scripts/docs_sync.py check --upstream .upstream/nomad-docs --github
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: FAIRmat-NFDI/nomad-docs
+          path: .upstream/nomad-docs
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Overlay owned pages onto nomad-docs
+        run: |
+          pip install pyyaml
+          python scripts/docs_sync.py export --target .upstream/nomad-docs
+      # Same command and variables as nomad-docs' own build job. Configure the
+      # NOMAD_SERVICES_* repository variables to match nomad-docs.
+      - name: Build nomad-docs with the overlay (strict)
+        working-directory: .upstream/nomad-docs
+        env:
+          NOMAD_SERVICES_API_HOST: ${{ vars.NOMAD_SERVICES_API_HOST }}
+          NOMAD_SERVICES_API_PORT: ${{ vars.NOMAD_SERVICES_API_PORT }}
+          NOMAD_SERVICES_API_BASE_PATH: ${{ vars.NOMAD_SERVICES_API_BASE_PATH }}
+          NOMAD_SERVICES_HTTPS: ${{ vars.NOMAD_SERVICES_HTTPS }}
+        run: |
+          uv run \
+            --with 'nomad-lab[infrastructure] @ https://gitlab.mpcdf.mpg.de/nomad-lab/nomad-FAIR.git' \
+            mkdocs build --strict
+      - name: nomad-docs test suite on the overlay
+        working-directory: .upstream/nomad-docs
+        run: uv run pytest tests

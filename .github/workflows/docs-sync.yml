@@ -1,0 +1,92 @@
+name: Docs sync → nomad-docs
+
+# Exports owned pages (docs-sync.yaml) into nomad-docs as a pull request on a
+# single long-lived branch, so nomad-docs maintainers keep review control and
+# their CI runs on exactly what we ship.
+#
+# Baseline: copy-based export via scripts/docs_sync.py. Nav registration for new
+# pages and smarter merging are the next milestone (custom sync bot).
+#
+# Setup (one-off):
+#   * GitHub App installed on FAIRmat-NFDI/nomad-docs with contents:write and
+#     pull_requests:write; secrets DOCS_SYNC_APP_ID, DOCS_SYNC_APP_PRIVATE_KEY.
+#   * Repository variable DOCS_SYNC_ENABLED=true to enable the push trigger.
+
+on:
+  push:
+    branches: [main]
+    paths: ["docs/**", "examples/docs/**", "docs-sync.yaml"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only show the diff, do not open a PR"
+        type: boolean
+        default: true
+
+concurrency:
+  group: docs-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.event_name == 'workflow_dispatch' || vars.DOCS_SYNC_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Token for nomad-docs
+        id: app
+        if: env.DRY_RUN != 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.DOCS_SYNC_APP_ID }}
+          private-key: ${{ secrets.DOCS_SYNC_APP_PRIVATE_KEY }}
+          owner: FAIRmat-NFDI
+          repositories: nomad-docs
+
+      - uses: actions/checkout@v7
+        with:
+          repository: FAIRmat-NFDI/nomad-docs
+          path: .upstream/nomad-docs
+          token: ${{ steps.app.outputs.token || github.token }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+
+      # Refuse to overwrite edits made directly in nomad-docs.
+      - name: Drift check
+        run: python scripts/docs_sync.py check --upstream .upstream/nomad-docs --github
+
+      - name: Export owned pages
+        run: python scripts/docs_sync.py export --target .upstream/nomad-docs
+
+      - name: Show diff
+        working-directory: .upstream/nomad-docs
+        run: |
+          git add -A
+          git diff --cached --stat
+          git diff --cached -- '*.md' | head -500
+
+      - name: Open or update PR in nomad-docs
+        if: env.DRY_RUN != 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          path: .upstream/nomad-docs
+          token: ${{ steps.app.outputs.token }}
+          branch: nomad-sdk/docs-sync
+          base: main
+          title: "docs: sync workflow & API pages from nomad-sdk"
+          commit-message: "docs: sync from nomad-sdk@${{ github.sha }}"
+          labels: nomad-sdk-sync
+          body: |
+            Automated export of pages owned by
+            [nomad-sdk](https://github.com/${{ github.repository }}) (see `docs-sync.yaml`).
+
+            Source commit: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+
+            Please request changes in nomad-sdk rather than editing these pages
+            here; direct edits are flagged by the nomad-sdk drift check.

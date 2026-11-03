@@ -1,0 +1,70 @@
+# Which nomad-docs pages live in this repository, and who owns them.
+#
+# Paths are relative to `docs/` here and to `docs/` in nomad-docs, so every page
+# keeps the exact path it has upstream (a path-preserving partial mirror).
+#
+# mode
+#   owned   nomad-sdk is the source of truth. Edited here, exported to nomad-docs
+#           by .github/workflows/docs-sync.yml. `check` fails if someone edits
+#           the page directly in nomad-docs (drift since the last import).
+#   mirror  nomad-docs is the source of truth. Pulled here read-only for context
+#           and local preview; refreshed by `import`, never exported.
+# new       true = page does not exist upstream yet. Export creates it; it still
+#           has to be added to the nomad-docs `nav` (manual until the sync bot).
+# snippets
+#   test    Python is shown only as `--8<-- "examples/docs/..."` includes, and
+#           tests/docs/test_doc_examples.py runs every included file (offline mock
+#           + live tier). Inline ```python fences fail the test; opt one out
+#           with ```{.python notest}.
+#   skip    fences are not executed (legacy package / live-only examples).
+#
+# Assets (images, data zips, `--8<--` includes) referenced by a listed page are
+# discovered and copied automatically; they follow the page's mode.
+
+upstream:
+  repo: FAIRmat-NFDI/nomad-docs
+  ref: main
+
+pages:
+  # --- workflows -----------------------------------------------------------
+  - path: explanation/workflows.md
+    mode: owned
+    snippets: skip
+  - path: howto/manage/gui/workflows.md
+    mode: owned
+    snippets: skip
+  - path: tutorial/workflows_projects.md
+    mode: owned
+    snippets: skip
+
+  # --- API ------------------------------------------------------------------
+  - path: tutorial/upload_publish_api.md
+    mode: owned
+    snippets: skip       # still uses nomad_utility_workflows; migrate in M2
+  - path: howto/manage/program/nomad_sdk.md
+    mode: owned
+    new: true
+    snippets: test
+  # Raw REST / PAT pages describe the platform, not the SDK. Mirrored until the
+  # nomad-docs maintainers agree to hand them over; flip to `owned` then.
+  - path: howto/manage/program/api.md
+    mode: mirror
+    snippets: skip
+  - path: howto/manage/program/auth.md
+    mode: mirror
+    snippets: skip
+
+# Upstream lint configuration and theme assets, mirrored so local gates and the
+# local preview match nomad-docs. Always pulled, never exported.
+tooling:
+  - from: .github/workflows/configs/nomad.markdownlint.jsonc
+    to: .github/linters/nomad.markdownlint.jsonc
+  # theme: header logo, favicon, custom CSS, image sliders (see mkdocs.yml)
+  - from: overrides/.icons/nomad/nomad-logo-unfilled.svg
+    to: overrides/.icons/nomad/nomad-logo-unfilled.svg
+  - from: docs/assets/favicon.png
+    to: docs/assets/favicon.png
+  - from: docs/stylesheets/extra.css
+    to: docs/stylesheets/extra.css
+  - from: docs/create-image-sliders.js
+    to: docs/create-image-sliders.js

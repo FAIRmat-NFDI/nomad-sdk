@@ -1,0 +1,32 @@
+{
+  "files": {
+    ".github/workflows/configs/nomad.markdownlint.jsonc": "3bffdc80e9cccd31da2a33a646de5aefd29255d3ab1f3cdc991accc500b4892e",
+    "docs/assets/favicon.png": "b5c739794687d99a51cc9e8fe811190918a4fb3ddca4bc2c4c376d4026c654b1",
+    "docs/create-image-sliders.js": "1b6a5e7e37a93e56bb01b20e77e1343bd3232df8f9bc27629be31b94abf0ff3a",
+    "docs/explanation/workflows.md": "9959e9902a05c101d39c85665783b5adc0b1e1fb6956977118a243209ffb737f",
+    "docs/howto/manage/gui/data/Custom_ELN_Entries.zip": "8b6cbe9e90e2b640cdccb79488d63efebf8888a7a56e172707a9baa82bc24b07",
+    "docs/howto/manage/gui/data/nested_workflow_one-entry.zip": "aeaae7699b64525f8f75f9b1cbc8df519296455de057b91fe8eeb3617a1d0a0d",
+    "docs/howto/manage/gui/data/simple_workflow.zip": "df9a089fb2764b2ac7e6c46e7b98a15d624a7a6324bca1a453bde7d8fd82ba38",
+    "docs/howto/manage/gui/images/custom-task-workflow-card-dark.png": "b6bed9188cfbb3c31cc74b1f59e42d16043ad20b65e5ff51d7ea0a2b9a719636",
+    "docs/howto/manage/gui/images/custom-task-workflow-card-light.png": "d5745e9be8d1d795efbc74c0816bad01b5d9cfc2ec3cf0e45a6e1fe28a010002",
+    "docs/howto/manage/gui/images/nested-workflow-dmft-subworkflow-card-dark.png": "a319ff62e591fd2502b7218fe48e7ee29710bdbf95ee43a93ba651254a3cf8b7",
+    "docs/howto/manage/gui/images/nested-workflow-dmft-subworkflow-card-light.png": "32c280c5ab6d4f00eab4080a6633a70cef888089e022d08ce73e9259c2d97238",
+    "docs/howto/manage/gui/images/nested-workflow-parent-card-dark.png": "54ce3b81431c69f4fb3de544e7bf787f7529796d4571ff1239575fa055f3ae6e",
+    "docs/howto/manage/gui/images/nested-workflow-parent-card-light.png": "4d2a32bfbaa258ee7e3a0ca2d5120e53dda9076736267317e90ddebb2fbdca44",
+    "docs/howto/manage/gui/images/single-point-custom-nomad-workflow-card-dark.png": "13215787f9278929ba59bacf2fbde4accd9c9a549d7152b7c4e97c5bf0b43432",
+    "docs/howto/manage/gui/images/single-point-custom-nomad-workflow-card-light.png": "3528fb627c203f8eea8aec880eda2c5dec1f42478aa4d1d4808b894c98b5511f",
+    "docs/howto/manage/gui/images/single-point-nomad-workflow-card-dark.png": "02955802decce9d98ef38f70e28b54563e33ff4166d9baf60835863edf892e11",
+    "docs/howto/manage/gui/images/single-point-nomad-workflow-card-light.png": "e04710a9d6c6b3f29559dd68904b70614683d307ac360e74c8f65983a49991d8",
+    "docs/howto/manage/gui/workflows.md": "229c7193daaa019ad16fc99fac2eb3961c3c014d874db38d02516cd3c5d7332c",
+    "docs/howto/manage/program/api.md": "d99b44d2dc4c8b26f404731c94469494a801575ca2503ca6857ec6658ec18ec1",
+    "docs/howto/manage/program/auth.md": "e46ebdd5d7972e16b38f0f9cb4b3b9a986e77c7db4897357133e8b540188095b",
+    "docs/stylesheets/extra.css": "072753669ae05c8cebff9aa1b04c127600bc83b85878d671bec31102a45904d3",
+    "docs/tutorial/images/upload_publish_api_1.png": "02e9232c3548ed93b42ece6c6f5f7a35de42e1648824a86f6dd7e62e7c974646",
+    "docs/tutorial/upload_publish_api.md": "419ca30a65b84964a4a0beff3bd729334f8a164cb5b6d052c3d5bb7c9a6141f3",
+    "docs/tutorial/workflows_projects.md": "08826ec06386f65d3a283ce8caf1d530795c1b1a9e95c0120064799773edc372",
+    "examples/docs/api/query_entries.py": "9028c3eb9cfbb2b2e02d0f78dcc51e8cfbf2b99c631948ec90cba9e5be76940f",
+    "overrides/.icons/nomad/nomad-logo-unfilled.svg": "d796e939fe22c518ad3e371628425caa39cf88f98b7c0088e19bc0957ac8124d"
+  },
+  "rev": "858e285ce0070a6359024bfbde16bef6bf00f2f5",
+  "upstream": "FAIRmat-NFDI/nomad-docs"
+}

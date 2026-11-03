@@ -1,0 +1,120 @@
+# Local preview of the nomad-docs subset owned/mirrored by nomad-sdk.
+#
+# Look and feel are inherited from nomad-docs/mkdocs.yml: theme, palette, header
+# logo, features, extensions, extra_css/js and URL style are copied verbatim, and
+# the theme assets are mirrored via `tooling` in docs-sync.yaml. Only the nav is
+# pruned to workflow and API pages, keeping the upstream section names/order.
+# The authoritative render is still the docs-integration CI job.
+site_name: Documentation
+site_description: |
+  Preview of the NOMAD documentation pages maintained in nomad-sdk
+  (workflows and API).
+site_author: The NOMAD Authors
+repo_url: https://github.com/FAIRmat-NFDI/nomad-sdk
+edit_uri: ""
+docs_dir: docs
+
+nav:
+  - Home: index.md  # local-only landing page, never exported
+  - Tutorials:
+      - Publish data:
+          - Upload and share with the API: tutorial/upload_publish_api.md
+      - Manage workflows and projects: tutorial/workflows_projects.md
+  - How-to guides:
+      - Manage and find data:
+          - With the GUI:
+              - Create custom workflows: howto/manage/gui/workflows.md
+          - Work programmatically:
+              - Use the API: howto/manage/program/api.md
+              - Authenticate programmatically: howto/manage/program/auth.md
+              - Use the NOMAD Python SDK: howto/manage/program/nomad_sdk.md
+  - Explanation:
+      - Workflows: explanation/workflows.md
+
+validation:
+  # Links into pages outside the subset are expected; nomad-docs validates them.
+  links:
+    not_found: info
+    unrecognized_links: info
+    anchors: info
+
+# --- inherited from nomad-docs/mkdocs.yml (keep in step) ---------------------
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+  font:
+    text: "Titillium Web"
+  favicon: assets/favicon.png
+  features:
+    - navigation.path
+    - navigation.footer
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  custom_dir: overrides
+  icon:
+    logo: nomad/nomad-logo-unfilled
+    repo: fontawesome/brands/github
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      check_paths: true  # a missing --8<-- include fails the build
+  - pymdownx.tabbed:
+      alternate_style: true
+  - mkdocs-click
+  - pymdownx.extra
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      options:
+        custom_icons:
+          - overrides/.icons
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+extra:
+  generator: false
+  homepage: https://nomad-lab.eu
+  # `version.provider: mike` omitted: versioning is handled by nomad-docs.
+use_directory_urls: false
+plugins:
+  - search
+  - macros:
+      module_name: docs_preview/macros  # shim for nomad-docs' nav_link/nomad_url
+  - glightbox
+extra_css:
+  - stylesheets/extra.css
+extra_javascript:
+  - create-image-sliders.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

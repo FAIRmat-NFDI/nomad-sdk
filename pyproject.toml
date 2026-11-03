@@ -1,0 +1,91 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "setuptools-scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nomad-sdk"
+description = "Python SDK for the NOMAD platform: API client, workflow builder and playground."
+dynamic = ["version"]
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "License :: OSI Approved :: Apache Software License",
+]
+# Keep runtime dependencies pure-Python: the playground runs this package in
+# Pyodide (CPython compiled to WebAssembly) in the browser.
+dependencies = [
+    "requests>=2.31.0",
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+    "networkx>=3.0",
+    "typing-extensions>=4.12.2",
+]
+
+[project.optional-dependencies]
+vis = ["gravis>=0.1.0", "jupyterlab>=4.3.0", "ipykernel>=6.29.5"]
+docs = [
+    "mkdocs>=1.6.0,<2",
+    "mkdocs-material",
+    "mkdocs-macros-plugin",
+    "mkdocs-glightbox",
+    "mkdocs-redirects",
+    "mkdocs-click",
+]
+dev = [
+    "pytest>=8",
+    "responses>=0.25",
+    "ruff>=0.9",
+    "pyyaml>=6.0",
+    "griffe>=1.5",  # API reference for the playground (playground/public/api.json)
+]
+
+[project.scripts]
+nomad-sdk = "nomad_sdk.cli:main"
+
+[project.urls]
+Repository = "https://github.com/FAIRmat-NFDI/nomad-sdk"
+Documentation = "https://nomad-lab.eu/prod/v1/docs/"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+nomad_sdk = ["py.typed", "playground/static/**/*"]
+
+[tool.setuptools_scm]
+fallback_version = "0.0.0"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "live: talks to a real NOMAD deployment; needs NOMAD_API_URL and NOMAD_PAT",
+]
+
+[tool.ruff]
+line-length = 88
+extend-exclude = ["docs"]  # nomad-docs runs its own `ruff format --preview` over markdown
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "I", "PL", "B"]
+ignore = ["PLR0913", "PLR2004"]
+
+[tool.ruff.lint.per-file-ignores]
+# Ported legacy engine: lint debt is tracked, not fixed, during the move.
+"src/nomad_sdk/workflow/_*.py" = ["PL", "B", "UP", "E501"]
+"tests/**" = ["PL"]
+
+[tool.ruff.format]
+quote-style = "single"

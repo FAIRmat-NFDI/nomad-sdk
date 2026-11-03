@@ -1,0 +1,1205 @@
+{
+ "packages": [
+  {
+   "kind": "module",
+   "name": "nomad_sdk.identity",
+   "path": "nomad_sdk.identity",
+   "description": "``nomad_sdk.identity`` \u2014 credentials for NOMAD, in the style of ``azure.identity``.\n\nA credential is any object with ``get_token() -> AccessToken``. Clients only ever ask\na credential for a token; how the token is obtained (a personal access token, the\nKeycloak password grant, environment variables) is the credential's business::\n\n    from nomad_sdk import NomadClient\n    from nomad_sdk.identity import EnvironmentCredential\n\n    client = NomadClient('test', credential=EnvironmentCredential())\n\nNothing here reads the environment or the network at import time.",
+   "members": [
+    {
+     "kind": "class",
+     "name": "AccessToken",
+     "path": "nomad_sdk.identity.AccessToken",
+     "signature": "AccessToken(token: str, expires_on: float)",
+     "bases": [
+      "NamedTuple"
+     ],
+     "description": "A bearer token and when it expires (Unix time; ``inf`` = not known to expire).",
+     "parameters": [
+      {
+       "name": "token",
+       "type": "str",
+       "default": null,
+       "kind": null,
+       "description": ""
+      },
+      {
+       "name": "expires_on",
+       "type": "float",
+       "default": null,
+       "kind": null,
+       "description": ""
+      }
+     ],
+     "raises": [],
+     "members": []
+    },
+    {
+     "kind": "class",
+     "name": "EnvironmentCredential",
+     "path": "nomad_sdk.identity.EnvironmentCredential",
+     "signature": "EnvironmentCredential(*, api_url: str | None = None, env: Mapping[str, str] | None = None)",
+     "bases": [],
+     "description": "Credential configured by environment variables, read when it is created.\n\n* ``NOMAD_PAT`` \u2192 :class:`PersonalAccessTokenCredential` (preferred);\n* otherwise ``NOMAD_USERNAME`` + ``NOMAD_PASSWORD`` \u2192\n  :class:`UsernamePasswordCredential` on ``api_url`` or ``NOMAD_API_URL``.",
+     "parameters": [
+      {
+       "name": "api_url",
+       "type": "str | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "env",
+       "type": "Mapping[str, str] | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      }
+     ],
+     "raises": [
+      {
+       "type": "CredentialUnavailableError",
+       "description": "none of the variables is set."
+      }
+     ],
+     "members": [
+      {
+       "kind": "function",
+       "name": "get_token",
+       "path": "nomad_sdk.identity.EnvironmentCredential.get_token",
+       "signature": "get_token()",
+       "returns_type": "AccessToken",
+       "labels": [],
+       "description": "",
+       "parameters": [],
+       "returns": [],
+       "raises": []
+      }
+     ]
+    },
+    {
+     "kind": "class",
+     "name": "PersonalAccessTokenCredential",
+     "path": "nomad_sdk.identity.PersonalAccessTokenCredential",
+     "signature": "PersonalAccessTokenCredential(token: str)",
+     "bases": [],
+     "description": "A NOMAD personal access token (PAT), or any pre-issued bearer token.\n\nThe recommended credential for scripts, notebooks and CI. Create a PAT in the\nNOMAD GUI (see nomad-docs ``howto/manage/program/auth.md``).",
+     "parameters": [
+      {
+       "name": "token",
+       "type": "str",
+       "default": null,
+       "kind": "positional or keyword",
+       "description": ""
+      }
+     ],
+     "raises": [],
+     "members": [
+      {
+       "kind": "function",
+       "name": "get_token",
+       "path": "nomad_sdk.identity.PersonalAccessTokenCredential.get_token",
+       "signature": "get_token()",
+       "returns_type": "AccessToken",
+       "labels": [],
+       "description": "",
+       "parameters": [],
+       "returns": [],
+       "raises": []
+      }
+     ]
+    },
+    {
+     "kind": "class",
+     "name": "TokenCredential",
+     "path": "nomad_sdk.identity.TokenCredential",
+     "signature": "class TokenCredential(Protocol)",
+     "bases": [
+      "Protocol"
+     ],
+     "description": "Anything that can produce a bearer token for NOMAD.",
+     "parameters": [],
+     "raises": [],
+     "members": [
+      {
+       "kind": "function",
+       "name": "get_token",
+       "path": "nomad_sdk.identity.TokenCredential.get_token",
+       "signature": "get_token()",
+       "returns_type": "AccessToken",
+       "labels": [],
+       "description": "",
+       "parameters": [],
+       "returns": [],
+       "raises": []
+      }
+     ]
+    },
+    {
+     "kind": "class",
+     "name": "UsernamePasswordCredential",
+     "path": "nomad_sdk.identity.UsernamePasswordCredential",
+     "signature": "UsernamePasswordCredential(username: str, password: str, *, api_url: str, timeout: float = DEFAULT_TIMEOUT_S, session: requests.Session | None = None)",
+     "bases": [],
+     "description": "Username and password, exchanged for a short-lived token on ``/auth/token``.\n\nKept for users coming from ``nomad-utility-workflows``; prefer a PAT.",
+     "parameters": [
+      {
+       "name": "username",
+       "type": "str",
+       "default": null,
+       "kind": "positional or keyword",
+       "description": "NOMAD username."
+      },
+      {
+       "name": "password",
+       "type": "str",
+       "default": null,
+       "kind": "positional or keyword",
+       "description": "NOMAD password."
+      },
+      {
+       "name": "api_url",
+       "type": "str",
+       "default": null,
+       "kind": "keyword-only",
+       "description": "The deployment that issues the token (URL or alias such as\n``test``); use the same deployment as the client."
+      },
+      {
+       "name": "timeout",
+       "type": "float",
+       "default": "DEFAULT_TIMEOUT_S",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "session",
+       "type": "requests.Session | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      }
+     ],
+     "raises": [],
+     "members": [
+      {
+       "kind": "attribute",
+       "name": "username",
+       "path": "nomad_sdk.identity.UsernamePasswordCredential.username",
+       "type": null,
+       "default": "username",
+       "description": ""
+      },
+      {
+       "kind": "attribute",
+       "name": "api_url",
+       "path": "nomad_sdk.identity.UsernamePasswordCredential.api_url",
+       "type": null,
+       "default": "resolve_api_url(api_url)",
+       "description": ""
+      },
+      {
+       "kind": "function",
+       "name": "get_token",
+       "path": "nomad_sdk.identity.UsernamePasswordCredential.get_token",
+       "signature": "get_token()",
+       "returns_type": "AccessToken",
+       "labels": [],
+       "description": "",
+       "parameters": [],
+       "returns": [],
+       "raises": []
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "module",
+   "name": "nomad_sdk.api",
+   "path": "nomad_sdk.api",
+   "description": "``nomad_sdk.api`` \u2014 a Python client library for NOMAD.\n\nIt wraps NOMAD's REST API the way ``boto3`` or the Azure SDKs wrap theirs: you work\nwith a client, operation groups and typed models, never with URLs or HTTP::\n\n    from nomad_sdk import NomadClient\n    from nomad_sdk.identity import PersonalAccessTokenCredential\n\n    client = NomadClient('test', PersonalAccessTokenCredential(pat))\n    me = client.users.get_me()\n\nCredentials live in :mod:`nomad_sdk.identity`, errors in :mod:`nomad_sdk.exceptions`.",
+   "members": [
+    {
+     "kind": "class",
+     "name": "NomadClient",
+     "path": "nomad_sdk.api.NomadClient",
+     "signature": "NomadClient(api_url: str, credential: TokenCredential | None = None, *, timeout: float = DEFAULT_TIMEOUT_S, session: requests.Session | None = None)",
+     "bases": [],
+     "description": "Client for one NOMAD deployment.\n\nOperations are grouped by resource: ``client.users`` today; ``uploads``,\n``entries`` and ``datasets`` follow. Methods return typed models from\n:mod:`nomad_sdk.api.models` and raise :mod:`nomad_sdk.exceptions` errors.",
+     "parameters": [
+      {
+       "name": "api_url",
+       "type": "str",
+       "default": null,
+       "kind": "positional or keyword",
+       "description": "API v1 base URL, or a deployment alias (``central``, ``test``,\n``develop``)."
+      },
+      {
+       "name": "credential",
+       "type": "TokenCredential | None",
+       "default": "None",
+       "kind": "positional or keyword",
+       "description": "Any :class:`~nomad_sdk.identity.TokenCredential`, e.g.\n:class:`~nomad_sdk.identity.PersonalAccessTokenCredential`. Omit it\nfor anonymous access to public data."
+      },
+      {
+       "name": "timeout",
+       "type": "float",
+       "default": "DEFAULT_TIMEOUT_S",
+       "kind": "keyword-only",
+       "description": "Per-request timeout in seconds."
+      },
+      {
+       "name": "session",
+       "type": "requests.Session | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": "Optional pre-configured ``requests.Session`` (proxies, retries)."
+      }
+     ],
+     "raises": [],
+     "members": [
+      {
+       "kind": "attribute",
+       "name": "users",
+       "path": "nomad_sdk.api.NomadClient.users",
+       "type": "UsersOperations",
+       "default": "UsersOperations(self._transport)",
+       "description": "Operations on NOMAD user accounts."
+      },
+      {
+       "kind": "function",
+       "name": "from_env",
+       "path": "nomad_sdk.api.NomadClient.from_env",
+       "signature": "from_env(*, credential: TokenCredential | None = None, env: Mapping[str, str] | None = None)",
+       "returns_type": "NomadClient",
+       "labels": [
+        "classmethod"
+       ],
+       "description": "Client for ``NOMAD_API_URL``, with an :class:`EnvironmentCredential`\nunless ``credential`` is given. The environment is read at call time.",
+       "parameters": [
+        {
+         "name": "credential",
+         "type": "TokenCredential | None",
+         "default": "None",
+         "kind": "keyword-only",
+         "description": ""
+        },
+        {
+         "name": "env",
+         "type": "Mapping[str, str] | None",
+         "default": "None",
+         "kind": "keyword-only",
+         "description": ""
+        }
+       ],
+       "returns": [],
+       "raises": []
+      },
+      {
+       "kind": "attribute",
+       "name": "api_url",
+       "path": "nomad_sdk.api.NomadClient.api_url",
+       "type": "str",
+       "default": null,
+       "description": ""
+      },
+      {
+       "kind": "attribute",
+       "name": "credential",
+       "path": "nomad_sdk.api.NomadClient.credential",
+       "type": "TokenCredential | None",
+       "default": null,
+       "description": ""
+      },
+      {
+       "kind": "function",
+       "name": "close",
+       "path": "nomad_sdk.api.NomadClient.close",
+       "signature": "close()",
+       "returns_type": "None",
+       "labels": [],
+       "description": "",
+       "parameters": [],
+       "returns": [],
+       "raises": []
+      }
+     ]
+    },
+    {
+     "kind": "class",
+     "name": "User",
+     "path": "nomad_sdk.api.User",
+     "signature": "User(*, user_id: str, name: str | None = None, first_name: str | None = None, last_name: str | None = None, username: str | None = None, email: str | None = None, affiliation: str | None = None, affiliation_address: str | None = None, is_admin: bool | None = None, is_oasis_admin: bool | None = None, created: datetime | None = None)",
+     "bases": [
+      "NomadModel"
+     ],
+     "description": "A NOMAD account (``client.users``).",
+     "parameters": [
+      {
+       "name": "user_id",
+       "type": "str",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "name",
+       "type": "str | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "first_name",
+       "type": "str | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "last_name",
+       "type": "str | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "username",
+       "type": "str | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "email",
+       "type": "str | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "affiliation",
+       "type": "str | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "affiliation_address",
+       "type": "str | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "is_admin",
+       "type": "bool | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "is_oasis_admin",
+       "type": "bool | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "created",
+       "type": "datetime | None",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      }
+     ],
+     "raises": [],
+     "members": []
+    },
+    {
+     "kind": "class",
+     "name": "UsersOperations",
+     "path": "nomad_sdk.api.UsersOperations",
+     "signature": "UsersOperations(transport: Transport)",
+     "bases": [],
+     "description": "``client.users`` \u2014 NOMAD user accounts.\n\nDo not instantiate directly; use :attr:`NomadClient.users`.",
+     "parameters": [
+      {
+       "name": "transport",
+       "type": "Transport",
+       "default": null,
+       "kind": "positional or keyword",
+       "description": ""
+      }
+     ],
+     "raises": [],
+     "members": [
+      {
+       "kind": "function",
+       "name": "get_me",
+       "path": "nomad_sdk.api.UsersOperations.get_me",
+       "signature": "get_me()",
+       "returns_type": "User",
+       "labels": [],
+       "description": "Return the account the client's credential belongs to.",
+       "parameters": [],
+       "returns": [],
+       "raises": []
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "module",
+   "name": "nomad_sdk.exceptions",
+   "path": "nomad_sdk.exceptions",
+   "description": "Exception hierarchy. Catch :class:`NomadSDKError` to handle any SDK failure.",
+   "members": [
+    {
+     "kind": "exception",
+     "name": "NomadSDKError",
+     "path": "nomad_sdk.exceptions.NomadSDKError",
+     "signature": "class NomadSDKError(Exception)",
+     "bases": [
+      "Exception"
+     ],
+     "description": "Base class for all errors raised by nomad-sdk.",
+     "parameters": [],
+     "raises": [],
+     "members": []
+    },
+    {
+     "kind": "exception",
+     "name": "ConfigurationError",
+     "path": "nomad_sdk.exceptions.ConfigurationError",
+     "signature": "class ConfigurationError(NomadSDKError)",
+     "bases": [
+      "NomadSDKError"
+     ],
+     "description": "Missing or invalid client configuration (URL, credentials, ...).",
+     "parameters": [],
+     "raises": [],
+     "members": []
+    },
+    {
+     "kind": "exception",
+     "name": "CredentialUnavailableError",
+     "path": "nomad_sdk.exceptions.CredentialUnavailableError",
+     "signature": "class CredentialUnavailableError(ConfigurationError)",
+     "bases": [
+      "ConfigurationError"
+     ],
+     "description": "A credential cannot be created, e.g. its environment variables are unset.",
+     "parameters": [],
+     "raises": [],
+     "members": []
+    },
+    {
+     "kind": "exception",
+     "name": "NomadAPIError",
+     "path": "nomad_sdk.exceptions.NomadAPIError",
+     "signature": "NomadAPIError(status_code: int, detail: object, *, url: str = '')",
+     "bases": [
+      "NomadSDKError"
+     ],
+     "description": "The NOMAD API returned an unexpected status code.",
+     "parameters": [
+      {
+       "name": "status_code",
+       "type": "int",
+       "default": null,
+       "kind": "positional or keyword",
+       "description": ""
+      },
+      {
+       "name": "detail",
+       "type": "object",
+       "default": null,
+       "kind": "positional or keyword",
+       "description": ""
+      },
+      {
+       "name": "url",
+       "type": "str",
+       "default": "''",
+       "kind": "keyword-only",
+       "description": ""
+      }
+     ],
+     "raises": [],
+     "members": [
+      {
+       "kind": "attribute",
+       "name": "status_code",
+       "path": "nomad_sdk.exceptions.NomadAPIError.status_code",
+       "type": null,
+       "default": "status_code",
+       "description": ""
+      },
+      {
+       "kind": "attribute",
+       "name": "detail",
+       "path": "nomad_sdk.exceptions.NomadAPIError.detail",
+       "type": null,
+       "default": "detail",
+       "description": ""
+      },
+      {
+       "kind": "attribute",
+       "name": "url",
+       "path": "nomad_sdk.exceptions.NomadAPIError.url",
+       "type": null,
+       "default": "url",
+       "description": ""
+      }
+     ]
+    },
+    {
+     "kind": "exception",
+     "name": "AuthenticationError",
+     "path": "nomad_sdk.exceptions.AuthenticationError",
+     "signature": "class AuthenticationError(NomadAPIError)",
+     "bases": [
+      "NomadAPIError"
+     ],
+     "description": "HTTP 401: credentials missing, expired, revoked or for another deployment.",
+     "parameters": [],
+     "raises": [],
+     "members": []
+    },
+    {
+     "kind": "exception",
+     "name": "AuthorizationError",
+     "path": "nomad_sdk.exceptions.AuthorizationError",
+     "signature": "class AuthorizationError(NomadAPIError)",
+     "bases": [
+      "NomadAPIError"
+     ],
+     "description": "HTTP 403: credentials are valid but lack the required scope or access.",
+     "parameters": [],
+     "raises": [],
+     "members": []
+    }
+   ]
+  },
+  {
+   "kind": "module",
+   "name": "nomad_sdk.workflow",
+   "path": "nomad_sdk.workflow",
+   "description": "``nomad_sdk.workflow`` \u2014 build NOMAD custom-workflow archives.\n\nThe current public API is the engine ported from ``nomad-utility-workflows``:\ndescribe nodes with :class:`NodeAttributes`, turn them into a graph with\n:func:`nodes_to_graph`, and let :class:`NomadWorkflow` fill default inputs/outputs\nand write ``workflow.archive.yaml``.\n\nA higher-level, object-oriented builder is planned for a later milestone; it will\ncompile down to this engine, so code written against these names keeps working.",
+   "members": [
+    {
+     "kind": "class",
+     "name": "NodeAttributes",
+     "path": "nomad_sdk.workflow.NodeAttributes",
+     "signature": "NodeAttributes(*, name: str = None, type: SectionType = None, entry_type: EntryType = None, path_info: PathInfo = None, inputs: list[dict[str, Any]], outputs: list[dict[str, Any]], in_edge_nodes: list[int], out_edge_nodes: list[int])",
+     "bases": [
+      "BaseModel"
+     ],
+     "description": "NodeAttributes represents the attributes of a node in the NOMAD workflow graph.",
+     "parameters": [
+      {
+       "name": "name",
+       "type": "str",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": "A free-form string describing this node."
+      },
+      {
+       "name": "type",
+       "type": "SectionType",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": "The type of node."
+      },
+      {
+       "name": "entry_type",
+       "type": "EntryType",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": "The type of node recognized by NOMAD."
+      },
+      {
+       "name": "path_info",
+       "type": "PathInfo",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": "Information for generating the NOMAD archive section paths."
+      },
+      {
+       "name": "inputs",
+       "type": "list[dict[str, Any]]",
+       "default": null,
+       "kind": "keyword-only",
+       "description": "A list of input nodes to be added to the graph."
+      },
+      {
+       "name": "outputs",
+       "type": "list[dict[str, Any]]",
+       "default": null,
+       "kind": "keyword-only",
+       "description": "A list of output nodes to be added to the graph."
+      },
+      {
+       "name": "in_edge_nodes",
+       "type": "list[int]",
+       "default": null,
+       "kind": "keyword-only",
+       "description": "Nodes with in-edges to this node."
+      },
+      {
+       "name": "out_edge_nodes",
+       "type": "list[int]",
+       "default": null,
+       "kind": "keyword-only",
+       "description": "Nodes with out-edges to this node."
+      }
+     ],
+     "raises": [],
+     "members": [
+      {
+       "kind": "function",
+       "name": "get",
+       "path": "nomad_sdk.workflow.NodeAttributes.get",
+       "signature": "get(key: str, default: Any = None)",
+       "returns_type": "Any",
+       "labels": [],
+       "description": "Allows dictionary-like access to the attributes of the NodeAttributes class.",
+       "parameters": [
+        {
+         "name": "key",
+         "type": "str",
+         "default": null,
+         "kind": "positional or keyword",
+         "description": "The attribute name to retrieve."
+        },
+        {
+         "name": "default",
+         "type": "Any",
+         "default": "None",
+         "kind": "positional or keyword",
+         "description": "The default value to return if the attribute is not found."
+        }
+       ],
+       "returns": [
+        {
+         "type": "Any",
+         "description": "The value of the attribute if it exists, otherwise the default value."
+        }
+       ],
+       "raises": []
+      }
+     ]
+    },
+    {
+     "kind": "class",
+     "name": "NodeAttributesUniverse",
+     "path": "nomad_sdk.workflow.NodeAttributesUniverse",
+     "signature": "NodeAttributesUniverse(*, nodes: dict[int, NodeAttributes])",
+     "bases": [
+      "BaseModel"
+     ],
+     "description": "Container for all node attributes in a NOMAD workflow graph.\n\nThis class holds a mapping from node keys (integers) to their corresponding\n`NodeAttributes` objects, representing the full set of nodes in a workflow.\nIt is used as the input for building the workflow graph and for serializing\nor deserializing workflow definitions.",
+     "parameters": [
+      {
+       "name": "nodes",
+       "type": "dict[int, NodeAttributes]",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      }
+     ],
+     "raises": [],
+     "members": []
+    },
+    {
+     "kind": "class",
+     "name": "NomadSection",
+     "path": "nomad_sdk.workflow.NomadSection",
+     "signature": "NomadSection(*, name: Optional[str] = None, type: Optional[SectionType] = None, entry_type: Optional[EntryType] = None, path_info: dict[str, Any] = {**default_path_info, **self.path_info}, inputs: list[dict[str, Any]] = [{}], outputs: list[dict[str, Any]] = [{}], archive_path: str, upload_prefix: str, full_path: str)",
+     "bases": [
+      "BaseModel"
+     ],
+     "description": "",
+     "parameters": [
+      {
+       "name": "name",
+       "type": "Optional[str]",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": "Name of the section"
+      },
+      {
+       "name": "type",
+       "type": "Optional[SectionType]",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": "Type of the section"
+      },
+      {
+       "name": "entry_type",
+       "type": "Optional[EntryType]",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": "Type of the entry"
+      },
+      {
+       "name": "path_info",
+       "type": "dict[str, Any]",
+       "default": "{**default_path_info, **self.path_info}",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "inputs",
+       "type": "list[dict[str, Any]]",
+       "default": "[{}]",
+       "kind": "keyword-only",
+       "description": "section inputs"
+      },
+      {
+       "name": "outputs",
+       "type": "list[dict[str, Any]]",
+       "default": "[{}]",
+       "kind": "keyword-only",
+       "description": "section outputs"
+      },
+      {
+       "name": "archive_path",
+       "type": "str",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "upload_prefix",
+       "type": "str",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "full_path",
+       "type": "str",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      }
+     ],
+     "raises": [],
+     "members": [
+      {
+       "kind": "function",
+       "name": "to_dict",
+       "path": "nomad_sdk.workflow.NomadSection.to_dict",
+       "signature": "to_dict()",
+       "returns_type": "dict",
+       "labels": [],
+       "description": "",
+       "parameters": [],
+       "returns": [],
+       "raises": []
+      }
+     ]
+    },
+    {
+     "kind": "class",
+     "name": "NomadTask",
+     "path": "nomad_sdk.workflow.NomadTask",
+     "signature": "NomadTask(*, name: str, inputs: list[NomadSection], outputs: list[NomadSection], task_section: Optional[NomadSection] = None, m_def: str, task: Optional[str])",
+     "bases": [
+      "BaseModel"
+     ],
+     "description": "",
+     "parameters": [
+      {
+       "name": "name",
+       "type": "str",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "inputs",
+       "type": "list[NomadSection]",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "outputs",
+       "type": "list[NomadSection]",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "task_section",
+       "type": "Optional[NomadSection]",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "m_def",
+       "type": "str",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "task",
+       "type": "Optional[str]",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      }
+     ],
+     "raises": [],
+     "members": [
+      {
+       "kind": "function",
+       "name": "to_dict",
+       "path": "nomad_sdk.workflow.NomadTask.to_dict",
+       "signature": "to_dict()",
+       "returns_type": "dict",
+       "labels": [],
+       "description": "",
+       "parameters": [],
+       "returns": [],
+       "raises": []
+      }
+     ]
+    },
+    {
+     "kind": "class",
+     "name": "NomadWorkflow",
+     "path": "nomad_sdk.workflow.NomadWorkflow",
+     "signature": "NomadWorkflow(*, destination_filename: str = './nomad_custom_workflow_archive.yaml', m_def: Optional[str] = None, name: Optional[str] = None, archive_section: str = 'workflow2', node_attributes_universe: NodeAttributesUniverse, workflow_graph: Optional[nx.DiGraph] = None, task_elements: dict[str, NomadSection] = {}, simulation_default_sections: dict[str, list[str]] = {'inputs': ['system'], 'outputs': ['system', 'calculation']})",
+     "bases": [
+      "BaseModel"
+     ],
+     "description": "Represents a NOMAD workflow and provides methods to build and serialize it.\n\nThis class manages the workflow graph, node attributes, and the logic for\nconstructing a NOMAD-compatible workflow archive. It supports registering\nnodes, resolving edges, adding default sections, and exporting the workflow\nto a YAML file for use with NOMAD systems.",
+     "parameters": [
+      {
+       "name": "destination_filename",
+       "type": "str",
+       "default": "'./nomad_custom_workflow_archive.yaml'",
+       "kind": "keyword-only",
+       "description": "The full path and filename to write the output yaml file."
+      },
+      {
+       "name": "m_def",
+       "type": "Optional[str]",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": "The NOMAD m_def path for a specific workflow type."
+      },
+      {
+       "name": "name",
+       "type": "Optional[str]",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": "User-defined name for the workflow."
+      },
+      {
+       "name": "archive_section",
+       "type": "str",
+       "default": "'workflow2'",
+       "kind": "keyword-only",
+       "description": "The root section of the archive to store the workflow."
+      },
+      {
+       "name": "node_attributes_universe",
+       "type": "NodeAttributesUniverse",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "workflow_graph",
+       "type": "Optional[nx.DiGraph]",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "task_elements",
+       "type": "dict[str, NomadSection]",
+       "default": "{}",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "simulation_default_sections",
+       "type": "dict[str, list[str]]",
+       "default": "{'inputs': ['system'], 'outputs': ['system', 'calculation']}",
+       "kind": "keyword-only",
+       "description": ""
+      }
+     ],
+     "raises": [],
+     "members": [
+      {
+       "kind": "function",
+       "name": "register_section",
+       "path": "nomad_sdk.workflow.NomadWorkflow.register_section",
+       "signature": "register_section(node_key: Union[int, str, tuple], node_attrs: dict[str, Any])",
+       "returns_type": "None",
+       "labels": [],
+       "description": "",
+       "parameters": [
+        {
+         "name": "node_key",
+         "type": "Union[int, str, tuple]",
+         "default": null,
+         "kind": "positional or keyword",
+         "description": ""
+        },
+        {
+         "name": "node_attrs",
+         "type": "dict[str, Any]",
+         "default": null,
+         "kind": "positional or keyword",
+         "description": ""
+        }
+       ],
+       "returns": [],
+       "raises": []
+      },
+      {
+       "kind": "function",
+       "name": "build_workflow_yaml",
+       "path": "nomad_sdk.workflow.NomadWorkflow.build_workflow_yaml",
+       "signature": "build_workflow_yaml()",
+       "returns_type": "None",
+       "labels": [],
+       "description": "Construct and serialize the workflow archive to a YAML file.\n\nThis method registers all nodes in the workflow graph as sections, builds the\ninternal task elements, generates the workflow archive, removes duplicate\ninputs/outputs, and writes the resulting archive to the YAML file specified by\n`self.destination_filename`. The resulting YAML file is compatible with the\nNOMAD workflow schema and can be used for further processing or import into\nNOMAD systems.\n\nAfter writing the file, a summary message is logged with the output filename.",
+       "parameters": [],
+       "returns": [],
+       "raises": []
+      },
+      {
+       "kind": "function",
+       "name": "generate_archive",
+       "path": "nomad_sdk.workflow.NomadWorkflow.generate_archive",
+       "signature": "generate_archive()",
+       "returns_type": "NomadWorkflowArchive",
+       "labels": [],
+       "description": "",
+       "parameters": [],
+       "returns": [],
+       "raises": []
+      }
+     ]
+    },
+    {
+     "kind": "class",
+     "name": "NomadWorkflowArchive",
+     "path": "nomad_sdk.workflow.NomadWorkflowArchive",
+     "signature": "NomadWorkflowArchive(*, archive_section: Optional[str] = None, m_def: Optional[str] = None, name: Optional[str] = None, inputs: list[NomadSection], outputs: list[NomadSection], tasks: list[NomadTask])",
+     "bases": [
+      "BaseModel"
+     ],
+     "description": "",
+     "parameters": [
+      {
+       "name": "archive_section",
+       "type": "Optional[str]",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "m_def",
+       "type": "Optional[str]",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "name",
+       "type": "Optional[str]",
+       "default": "None",
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "inputs",
+       "type": "list[NomadSection]",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "outputs",
+       "type": "list[NomadSection]",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      },
+      {
+       "name": "tasks",
+       "type": "list[NomadTask]",
+       "default": null,
+       "kind": "keyword-only",
+       "description": ""
+      }
+     ],
+     "raises": [],
+     "members": [
+      {
+       "kind": "function",
+       "name": "remove_duplicate_ios",
+       "path": "nomad_sdk.workflow.NomadWorkflowArchive.remove_duplicate_ios",
+       "signature": "remove_duplicate_ios()",
+       "returns_type": "None",
+       "labels": [],
+       "description": "",
+       "parameters": [],
+       "returns": [],
+       "raises": []
+      },
+      {
+       "kind": "function",
+       "name": "to_dict",
+       "path": "nomad_sdk.workflow.NomadWorkflowArchive.to_dict",
+       "signature": "to_dict()",
+       "returns_type": "dict",
+       "labels": [],
+       "description": "",
+       "parameters": [],
+       "returns": [],
+       "raises": []
+      },
+      {
+       "kind": "function",
+       "name": "to_yaml",
+       "path": "nomad_sdk.workflow.NomadWorkflowArchive.to_yaml",
+       "signature": "to_yaml(destination_filename: str)",
+       "returns_type": "None",
+       "labels": [],
+       "description": "",
+       "parameters": [
+        {
+         "name": "destination_filename",
+         "type": "str",
+         "default": null,
+         "kind": "positional or keyword",
+         "description": ""
+        }
+       ],
+       "returns": [],
+       "raises": []
+      }
+     ]
+    },
+    {
+     "kind": "class",
+     "name": "PathInfo",
+     "path": "nomad_sdk.workflow.PathInfo",
+     "signature": "class PathInfo(TypedDict)",
+     "bases": [
+      "TypedDict"
+     ],
+     "description": "",
+     "parameters": [],
+     "raises": [],
+     "members": [
+      {
+       "kind": "attribute",
+       "name": "upload_id",
+       "path": "nomad_sdk.workflow.PathInfo.upload_id",
+       "type": "str",
+       "default": null,
+       "description": ""
+      },
+      {
+       "kind": "attribute",
+       "name": "entry_id",
+       "path": "nomad_sdk.workflow.PathInfo.entry_id",
+       "type": "str",
+       "default": null,
+       "description": ""
+      },
+      {
+       "kind": "attribute",
+       "name": "mainfile_path",
+       "path": "nomad_sdk.workflow.PathInfo.mainfile_path",
+       "type": "str",
+       "default": null,
+       "description": ""
+      },
+      {
+       "kind": "attribute",
+       "name": "supersection_path",
+       "path": "nomad_sdk.workflow.PathInfo.supersection_path",
+       "type": "str",
+       "default": null,
+       "description": ""
+      },
+      {
+       "kind": "attribute",
+       "name": "supersection_index",
+       "path": "nomad_sdk.workflow.PathInfo.supersection_index",
+       "type": "int",
+       "default": null,
+       "description": ""
+      },
+      {
+       "kind": "attribute",
+       "name": "section_type",
+       "path": "nomad_sdk.workflow.PathInfo.section_type",
+       "type": "str",
+       "default": null,
+       "description": ""
+      },
+      {
+       "kind": "attribute",
+       "name": "section_index",
+       "path": "nomad_sdk.workflow.PathInfo.section_index",
+       "type": "int",
+       "default": null,
+       "description": ""
+      },
+      {
+       "kind": "attribute",
+       "name": "archive_path",
+       "path": "nomad_sdk.workflow.PathInfo.archive_path",
+       "type": "str",
+       "default": null,
+       "description": ""
+      }
+     ]
+    },
+    {
+     "kind": "function",
+     "name": "nodes_to_graph",
+     "path": "nomad_sdk.workflow.nodes_to_graph",
+     "signature": "nodes_to_graph(node_attributes_universe: NodeAttributesUniverse)",
+     "returns_type": "nx.DiGraph",
+     "labels": [],
+     "description": "Builds a workflow graph (nx.DiGraph) from a NodeAttributesUniverse of node\nattributes as specified below.",
+     "parameters": [
+      {
+       "name": "node_attributes_universe",
+       "type": "NodeAttributesUniverse",
+       "default": null,
+       "kind": "positional or keyword",
+       "description": "A NodeAttributesUniverse object containing the node"
+      }
+     ],
+     "returns": [
+      {
+       "type": "nx.DiGraph",
+       "description": "nx.DiGraph: _description_"
+      }
+     ],
+     "raises": []
+    }
+   ]
+  }
+ ]
+}
