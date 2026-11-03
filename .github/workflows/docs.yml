@@ -1,6 +1,7 @@
 name: Docs
 
-# Guarantees that what docs-sync.yml exports will pass nomad-docs CI:
+# Guarantees that the owned pages, once exported, will pass nomad-docs CI
+# (export is manual for now; the docs-sync workflow is in .github/disabled-workflows/):
 #   gates        same markdownlint + ruff-on-markdown checks as nomad-docs,
 #                plus a strict local preview build
 #   drift        mirror pages current; owned pages not edited upstream
